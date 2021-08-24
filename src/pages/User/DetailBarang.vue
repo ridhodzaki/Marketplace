@@ -107,7 +107,7 @@ export default {
 
   methods: {
     getPesanan () {
-      this.$axios.get('order/getData/' + this.$route.params.id)
+      this.$axios.get('order/getData/' + this.$q.localStorage.getItem('dataUser')._id)
         .then(res => {
           if (res.data.sukses) {
             console.log(res.data.pesan)
@@ -118,6 +118,7 @@ export default {
           }
         })
     },
+
     getDetailBarang () {
       this.$axios.get('barang/getOneBarang/' + this.$route.params.id)
         .then((res) => {
@@ -131,20 +132,53 @@ export default {
     },
 
     buy () {
-      this.$axios.put('order/updateTransaksi/' + this.$route.params.idPesanan, {
-        idBarang: this.pesanan.idBarang + this.activeData._id + ',',
-        harga: this.pesanan.harga + this.activeData.hargabarang + ',',
-        jumlah: this.pesanan.jumlah + this.jumlahBarang + ',',
-        status: 1
-      })
-        .then(res => {
-          if (res.data.sukses) {
-            console.log(res.data.pesan)
-            this.$router.push({ name: 'homeuser' })
-          } else {
-            console.log(res.data.pesan)
-          }
-        })
+      let update = true
+      const namaBarangPesanan = this.pesanan.idBarang.split(',')
+      const jumlahBarangPesanan = this.pesanan.jumlah.split(',')
+      console.log(jumlahBarangPesanan)
+      let i = 0
+      for (i; i < namaBarangPesanan.length; i++) {
+        if (namaBarangPesanan[i] === this.activeData._id) {
+          update = false
+          jumlahBarangPesanan[i] = Number(jumlahBarangPesanan[i]) + this.jumlahBarang
+          this.pesanan.jumlah = jumlahBarangPesanan.join()
+        }
+      }
+      console.log(update)
+      console.log(this.pesanan.jumlah)
+      if (this.activeData.stok > this.jumlahBarang) {
+        if (update) {
+          this.$axios.put('order/updateTransaksi/' + this.$q.localStorage.getItem('dataUser')._id, {
+            idBarang: this.pesanan.idBarang + this.activeData._id + ',',
+            harga: this.pesanan.harga + this.activeData.hargabarang + ',',
+            jumlah: this.pesanan.jumlah + this.jumlahBarang + ',',
+            status: 1
+          })
+            .then(res => {
+              if (res.data.sukses) {
+                console.log(res.data.pesan)
+                this.$router.push({ name: 'homeuser' })
+              } else {
+                console.log(res.data.pesan)
+              }
+            })
+        } else {
+          this.$axios.put('order/updateTransaksi/' + this.$q.localStorage.getItem('dataUser')._id, {
+            idBarang: this.pesanan.idBarang,
+            harga: this.pesanan.harga,
+            jumlah: this.pesanan.jumlah,
+            status: 1
+          })
+            .then(res => {
+              if (res.data.sukses) {
+                console.log(res.data.pesan)
+                this.$router.push({ name: 'homeuser' })
+              } else {
+                console.log(res.data.pesan)
+              }
+            })
+        }
+      }
     },
 
     subtotal (harga) {
@@ -154,9 +188,9 @@ export default {
   },
 
   created () {
+    console.log(this.$route.params.id)
     this.getPesanan()
     this.getDetailBarang()
-    console.log(this.$route.params)
   }
 }
 </script>

@@ -20,7 +20,7 @@
       <div class="col-sm-12 col-xs-12 col-md-5 q-pa-md">
         <q-card class="q-pa-md" style="border-radius: 10px">
           <p class="title text-center" style="color: #4C4C4C; font-size: 30px; margin-top: -10px">Masuk</p>
-          <p class="subtitle text-center" style="color: #C1C8BC; margin-top: -20px">Belum Punya akun Tani App? <q-btn flat no-caps dense to="/register" class="text-blue" color="primary" label="Daftar Disini"/> </p>
+          <p v-if="this.$q.screen.xl || this.$q.screen.lg || this.$q.screen.md || this.$q.screen.sm" class="subtitle text-center" style="color: #C1C8BC; margin-top: -20px">Belum Punya akun Tani App? <q-btn flat no-caps dense to="/register" class="text-blue" color="primary" label="Daftar Disini"/> </p>
           <q-form
             class="q-gutter-md">
             <q-input
@@ -41,8 +41,9 @@
 
             <q-toggle v-model="accept" label="I accept the license and terms" />
 
-            <div class="flex flex-center">
+            <div class="flex flex-center q-gutter-sm">
               <q-btn class="full-width" label="Submit" @click="onSubmit()" color="primary"/>
+              <q-btn v-if="this.$q.screen.xs" class="full-width" label="Register" to="/register" outline color="primary"/>
             </div>
           </q-form>
           <div class="">
@@ -74,25 +75,48 @@
         </q-card>
       </div>
     </div>
+    <q-dialog v-model="alert">
+      <q-card>
+
+        <q-card-section class="q-pa-md">
+          <div class="column flex flex-center">
+            <q-icon
+              color="red"
+              size="100px"
+              name="cancel"
+            />
+            <div class="text-weight-bold">{{ message }}</div>
+          </div>
+        </q-card-section>
+
+        <q-card-actions align="center">
+          <q-btn flat label="OK" color="primary" v-close-popup />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 <script>
 export default {
   data () {
     return {
-      username: null,
-      password: null,
-      email: null,
-      name: null,
+      username: '',
+      password: '',
+      email: '',
+      name: '',
       isPwd: true,
+      message: '',
 
-      accept: false
+      accept: false,
+      alert: false
     }
   },
 
   methods: {
     onSubmit () {
-      if (this.accept !== false || this.username !== null || this.password !== null) {
+      // eslint-disable-next-line no-mixed-operators
+      console.log(this.username)
+      if (this.accept !== false && this.username !== '') {
         this.$axios.post('user/login', {
           username: this.username,
           password: this.password
@@ -124,11 +148,8 @@ export default {
               })
             }
           } else {
-            this.$q.notify({
-              message: res.data.pesan,
-              color: 'negative',
-              timeout: 2000
-            })
+            this.alert = true
+            this.message = res.data.pesan
           }
         })
       } else {

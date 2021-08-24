@@ -4,7 +4,8 @@
     <q-card
       class="q-ma-sm"
       v-for="(barang, index) in Barangs"
-      :key="barang._id">
+      :key="barang._id"
+      style="border-radius: 10px">
       <div class="row">
         <div class="col-4">
           <q-img
@@ -134,6 +135,21 @@ export default {
 
     onDelete (index) {
       this.Barangs.splice(index, 1)
+      this.idBarang.splice(index, 1)
+      this.hargaBarang.splice(index, 1)
+      this.jumlah.splice(index, 1)
+      this.$axios.put('order/updateTransaksi/' + this.$route.params.id, {
+        idBarang: this.idBarang.join(),
+        harga: this.hargaBarang.join(),
+        jumlah: this.jumlah.join(),
+        status: 1
+      }).then(res => {
+        if (res.data.sukses) {
+          console.log(res.data.pesan)
+        } else {
+          console.log(res.data.pesan)
+        }
+      })
     },
 
     onCheckout () {
@@ -151,11 +167,11 @@ export default {
         idBarang: idBarang,
         harga: harga,
         jumlah: jumlah,
-        status: 1
+        status: 2
       }).then(res => {
         if (res.data.sukses) {
           console.log(res.data.pesan)
-          this.$router.push({ name: 'checkout' })
+          this.$router.push({ name: 'homeuser' })
         } else {
           console.log(res.data.pesan)
         }

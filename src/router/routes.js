@@ -9,10 +9,13 @@ const routes = [
     ]
   },
   {
+    path: '/home', name: 'homeuser', component: () => import('pages/User/Home.vue')
+  },
+  {
     path: '/',
     component: () => import('layouts/UserLayout.vue'),
     children: [
-      { path: 'home', name: 'homeuser', component: () => import('pages/User/Home.vue') },
+      // { path: 'home', name: 'homeuser', component: () => import('pages/User/Home.vue') },
       { path: 'detail/:id', name: 'detail', component: () => import('pages/User/DetailBarang.vue') },
       { path: 'myaccount/:id', name: 'account', component: () => import('pages/User/Account.vue') },
       // Untuk di uji dulu
